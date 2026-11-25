@@ -31,15 +31,19 @@ const names = list => list.map(t => nameOf[t]).join(', ')
 // Welchen Regeln des UEFA-Auslosungsverfahrens unterliegt ein Team? (Daten: DRAW in data.js)
 function drawRules(t) {
   const partners = list => list.filter(p => p.includes(t)).map(p => p.find(x => x !== t)), qf = DRAW.qf.find(p => p.includes(t))
+  // Viertelfinalisten werden als Platzhalter gelost: ihre Sperren treffen auch den Viertelfinalgegner (z. B. KAZ–NOR über England)
+  const both = list => [t, ...list].some(x => DRAW.qf.flat().includes(x)) ? ' Bei Viertelfinalisten der Nations League gilt das für beide Teams der Paarung, weil nur Platzhalter gelost werden.' : ''
   const out = [pot(t) < 5
-    ? `<b>Topf ${pot(t)}:</b> Aus jedem Topf kommt genau ein Team in jede Gruppe – kein Gegner aus dem eigenen Topf.`
+    ? `<b>Topf ${pot(t)}:</b> Aus diesem Topf kommt genau ein Team in jede Gruppe – kein Gegner aus dem eigenen Topf.`
     : '<b>Topf 5:</b> kommt sicher in eine Fünfergruppe (G–L) und spielt damit acht Partien ab März 2027.']
   if (qf) out.push(`<b>Nations-League-Viertelfinale:</b> wird nur als Platzhalter „Sieger“ oder „Verlierer“ von ${qf.map(x => nameOf[x]).join(' – ')} gelost. Der Sieger kommt in eine Vierergruppe (A–F, Start im September 2027), der Verlierer in eine beliebige Gruppe – in einer Fünfergruppe aber als einziges Team, das im März 2027 noch Nations League spielt. Die Gruppe steht erst nach dem Viertelfinale Ende März 2027 fest. Verbotene Paarungen und Reiseregeln gelten für beide Teams der Paarung.`)
-  if (DRAW.nlPlayoff.includes(t)) out.push('<b>Nations-League-Play-offs im März 2027:</b> In einer Fünfergruppe (G–L) darf höchstens ein Play-off-Teilnehmer oder Viertelfinal-Verlierer stehen. Die meisten dieser Teams landen deshalb in einer Vierergruppe (A–F).')
+  if (DRAW.nlPlayoff.includes(t)) out.push('<b>Nations-League-Play-offs im März 2027:</b> In einer Fünfergruppe (G–L) darf höchstens ein Play-off-Teilnehmer oder Viertelfinal-Verlierer stehen. ' + (pot(t) > 1
+    ? 'Die meisten dieser Teams landen deshalb in einer Vierergruppe (A–F).'
+    : 'In Topf 1 sind aber vier der sechs Plätze in A–F für die Viertelfinal-Sieger reserviert – eine Fünfergruppe ist hier wahrscheinlicher.'))
   if (DRAW.separate.includes(t)) out.push(`<b>Gastgebertrennung:</b> nie in einer Gruppe mit ${names(DRAW.separate.filter(x => x !== t))}.${t === 'NIR' ? ' Nordirland ist kein Gastgeber, wird aber genauso getrennt.' : ''}`)
-  if (partners(DRAW.noClash).length) out.push(`<b>Verbotene Paarung:</b> nie in einer Gruppe mit ${names(partners(DRAW.noClash))}.`)
+  if (partners(DRAW.noClash).length) out.push(`<b>Verbotene Paarung:</b> nie in einer Gruppe mit ${names(partners(DRAW.noClash))}.${both(partners(DRAW.noClash))}`)
   if (DRAW.winter.includes(t)) out.push(`<b>Winterspielort:</b> höchstens zwei dieser Teams pro Gruppe: ${names(DRAW.winter)}.`)
-  if (partners(DRAW.travel).length) out.push(`<b>Reisedistanz:</b> Die Anreise gilt als übermäßig weit gegen ${names(partners(DRAW.travel))}. Pro Gruppe ist höchstens eine solche Paarung erlaubt.`)
+  if (partners(DRAW.travel).length) out.push(`<b>Reisedistanz:</b> zählt in der Auslosung als übermäßig weite Anreise gegen ${names(partners(DRAW.travel))}. Pro Gruppe ist höchstens eine solche Paarung erlaubt.${both(partners(DRAW.travel))}`)
   if (DRAW.neutral.includes(t)) out.push('<b>Neutraler Platz:</b> trägt seine Heimspiele auf neutralem Boden aus.')
   if (out.length === 1) out.push('Keine Sonderregeln – kann mit jedem Team der anderen Töpfe in eine Gruppe kommen.')
   return out

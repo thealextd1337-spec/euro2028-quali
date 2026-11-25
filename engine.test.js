@@ -13,6 +13,10 @@ const SEEDED = Object.fromEntries([...'ABCDEFGHIJKL'].map((g, i) =>
 test('Daten: 54 Teams, eindeutig, alle Verweise bekannt', () => {
   assert.equal(codes.length, 54)
   assert.equal(new Set(codes).size, 54)
+  // Regeldaten festnageln: der Auslosungstest prüft nur gegen DRAW selbst
+  assert.deepEqual(D.DRAW.separate, ['ENG', 'IRL', 'SCO', 'WAL', 'NIR'])
+  assert.deepEqual([D.DRAW.nlPlayoff, D.DRAW.noClash, D.DRAW.winter, D.DRAW.travel].map(x => x.length), [16, 6, 7, 19])
+  assert.ok(D.DRAW.qf.flat().every(t => codes.indexOf(t) < 12)) // alle Viertelfinalisten in Topf 1
   for (const t of [...D.HOSTS, ...D.NL_WINNERS_ABC, ...D.NL_WINNERS_D, ...Object.values(D.DRAW).flat(2)]) assert.ok(codes.includes(t), t)
 })
 
