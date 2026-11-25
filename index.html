@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EM-Quali 2028 – Rechner</title>
+<style>
+  :root { --bg: #f4f5f7; --card: #fff; --ink: #16202b; --dim: #5d6b7a; --line: #dfe3e8; --q: #d9f2e0; --g: #d9e8fb; --po: #fdf0c8; --accent: #0b5cad; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11161c; --card: #1a222b; --ink: #e8edf2; --dim: #9aa7b4; --line: #2c3742; --q: #1d4a2c; --g: #1c3f66; --po: #57460f; --accent: #7db8f5; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+  header, main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  p { margin: 4px 0; }
+  .dim { color: var(--dim); font-size: .88rem; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  button { font: inherit; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
+  .wide { margin-bottom: 12px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 6px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; color: var(--dim); font-size: .8rem; }
+  th:nth-child(2), td:nth-child(2) { text-align: left; width: 100%; }
+  tr.sieger, tr.zweiter { background: var(--q); }
+  tr.gastgeber { background: var(--g); }
+  tr.playoff, tr.playoff-nl { background: var(--po); }
+  .cut td { border-bottom: 2px solid var(--ink); }
+  .tag { font-size: .72rem; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--accent); }
+  .match { display: grid; grid-template-columns: 1fr auto auto auto 1fr; gap: 6px; align-items: center; padding: 3px 0; }
+  .match span:first-child { text-align: right; }
+  .match input { width: 3.2em; font: inherit; padding: 3px; text-align: center; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0; }
+  .legend i { display: inline-block; width: 1em; height: 1em; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--line); }
+  ul { margin: 4px 0; padding-left: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>EM-Qualifikation 2028 – Gruppenrechner</h1>
+  <p id="note" class="dim"></p>
+  <div class="bar">
+    <button id="sim">Simulation starten (2000 Läufe)</button>
+    <button id="reset">Eigene Ergebnisse löschen</button>
+    <button id="redraw" hidden>Neu auslosen</button>
+  </div>
+  <div class="legend dim">
+    <span><i style="background:var(--q)"></i>Q = direkt qualifiziert (12 Gruppensieger + 8 beste Zweite)</span>
+    <span><i style="background:var(--g)"></i>G = reservierter Gastgeberplatz</span>
+    <span><i style="background:var(--po)"></i>PO = Play-offs (PO* = über die Nations League)</span>
+  </div>
+</header>
+<main>
+  <section class="card wide" id="summary" aria-live="polite"></section>
+  <section class="card wide">
+    <h2>Rangliste der Gruppenzweiten</h2>
+    <p class="dim">Die besten acht sind direkt qualifiziert. In den Fünfergruppen (G–L) zählen die Spiele gegen den Gruppenfünften hier nicht.</p>
+    <div class="scroll" id="seconds"></div>
+  </section>
+  <div class="grid" id="groups"></div>
+  <p class="dim">Stand der Daten: 25.11.2026. Regeln nach dem UEFA-Reglement 2026-28 (Art. 14–16, 23). Zwischenstände zeigen, was gälte, wenn jetzt Schluss wäre.
+    „Mögl.“ = rechnerisch noch erreichbare Plätze (erscheint ab höchstens 10 offenen Spielen einer Gruppe, bei Punktgleichheit vorsichtig gerechnet).
+    Die Simulation ist ein einfaches Rechenmodell auf Basis der Setzliste, keine Prognose; die Fairplay-Wertung wird nicht erfasst.</p>
+</main>
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

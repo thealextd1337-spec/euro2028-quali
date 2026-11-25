@@ -1,0 +1,5 @@
+{
+  "name": "euro2028-quali",
+  "private": true,
+  "scripts": { "test": "node engine.test.js" }
+}
