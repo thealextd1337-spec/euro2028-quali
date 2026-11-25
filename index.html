@@ -17,8 +17,15 @@
   p { margin: 4px 0; }
   .dim { color: var(--dim); font-size: .88rem; }
   .bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  button { font: inherit; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; }
-  button:hover { border-color: var(--accent); }
+  button, select { font: inherit; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; }
+  button:hover, select:hover { border-color: var(--accent); }
+  a { color: var(--accent); }
+  h3 { font-size: .95rem; margin: 8px 0 4px; }
+  button.link { border: 0; padding: 0; background: none; font-weight: inherit; text-decoration: underline dotted; }
+  .pots { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 8px; }
+  .pots ol { margin: 0; padding-left: 30px; }
+  .me { font-weight: 700; }
+  tr.me td:first-child { box-shadow: inset 4px 0 var(--accent); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); gap: 12px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-width: 0; }
   .wide { margin-bottom: 12px; }
@@ -47,6 +54,7 @@
   <h1>EM-Qualifikation 2028 – Gruppenrechner</h1>
   <p id="note" class="dim"></p>
   <div class="bar">
+    <label>Mein Team: <select id="pick"></select></label>
     <button id="sim">Simulation starten (2000 Läufe)</button>
     <button id="reset">Eigene Ergebnisse löschen</button>
     <button id="redraw" hidden>Neu auslosen</button>
@@ -58,7 +66,13 @@
   </div>
 </header>
 <main>
+  <section class="card wide" id="team" aria-live="polite" hidden></section>
   <section class="card wide" id="summary" aria-live="polite"></section>
+  <section class="card wide">
+    <h2>Töpfe</h2>
+    <p class="dim">Setzliste nach der Nations-League-Rangliste 2026/27. Aus Topf 1–4 kommt je ein Team in jede Gruppe, die sechs Teams aus Topf 5 nur in die Fünfergruppen G–L. Dahinter die Gruppe der aktuellen Auslosung. Ein Klick auf ein Team wählt es aus und zeigt, welchen Auslosungsregeln es unterliegt.</p>
+    <div class="pots" id="pots"></div>
+  </section>
   <section class="card wide">
     <h2>Rangliste der Gruppenzweiten</h2>
     <p class="dim">Die besten acht sind direkt qualifiziert. In den Fünfergruppen (G–L) zählen die Spiele gegen den Gruppenfünften hier nicht.</p>
@@ -67,7 +81,7 @@
   <div class="grid" id="groups"></div>
   <p class="dim">Stand der Daten: 25.11.2026. Regeln nach dem UEFA-Reglement 2026-28 (Art. 14–16, 23). Zwischenstände zeigen, was gälte, wenn jetzt Schluss wäre.
     „Mögl.“ = rechnerisch noch erreichbare Plätze (erscheint ab höchstens 10 offenen Spielen einer Gruppe, bei Punktgleichheit vorsichtig gerechnet).
-    Die Simulation ist ein einfaches Rechenmodell auf Basis der Setzliste, keine Prognose; die Fairplay-Wertung wird nicht erfasst.</p>
+    Die Testauslosung folgt dem UEFA-Verfahren (Töpfe, Sperren, Winterspielorte, Reisedistanzen, Nations-League-Teams). Die Simulation ist ein einfaches Rechenmodell auf Basis der Setzliste, keine Prognose; die Fairplay-Wertung wird nicht erfasst.</p>
 </main>
 <script src="data.js"></script>
 <script src="engine.js"></script>

@@ -5,8 +5,12 @@ Tiebreakern, Rangliste der Gruppenzweiten, Gastgeberplätze, Play-off-Feld und S
 
 ## Benutzen
 
-`index.html` im Browser öffnen (Doppelklick genügt, kein Server, keine Installation).
+Online: **https://thealextd1337-spec.github.io/euro2028-quali/** (GitHub Pages, aktualisiert sich bei jedem Push auf `main`).
+Lokal: `index.html` im Browser öffnen (Doppelklick genügt, kein Server, keine Installation).
 
+- **Mein Team** aus der Liste wählen: Die Seite fasst Topf, Gruppe, Gegner, aktuellen Stand und Chancen dieses Teams zusammen, hebt es in allen Tabellen hervor
+  und zeigt, welchen **Auslosungsregeln** es unterliegt (Gastgebertrennung, verbotene Paarungen, Winterspielorte, Reisedistanzen, Nations-League-Platzhalter).
+- **Töpfe** zeigt die Setzliste mit allen 54 Teams und ihrer Gruppe in der aktuellen Auslosung; ein Klick auf ein Team wählt es aus.
 - **Spiele** einer Gruppe aufklappen und Ergebnisse eintragen – alles rechnet sofort mit. Eingaben bleiben im Browser gespeichert.
 - **Simulation starten** spielt alle offenen Spiele 2000-mal durch und zeigt je Team die Anteile für Gruppensieg, EM-Ticket ohne Play-offs und Play-offs.
 - **Mögl.** zeigt die rechnerisch noch erreichbaren Plätze, sobald in einer Gruppe höchstens 10 Spiele offen sind.
@@ -40,7 +44,9 @@ Tests: `npm test` (Node 18+, keine Abhängigkeiten).
 - „Mögl.“ rechnet nur mit Punkten und wertet Punktgleichheit als offen – eher zu vorsichtig als zu früh „sicher“.
 - Die Simulation ist ein einfaches Modell (Spielstärke aus dem Nations-League-Rang, Poisson-Tore, Heimvorteil), keine Prognose.
   Die Play-off-Spiele selbst werden nicht simuliert.
-- Die Testauslosung beachtet Töpfe, Gastgebertrennung und verbotene Paarungen, nicht aber Winterspielorte und Reisedistanzen.
+- Die Testauslosung hält die Regeln des UEFA-Verfahrens ein, lost aber echte Teams statt der Viertelfinal-Platzhalter und
+  ist keine exakte Nachbildung der Ziehungsreihenfolge. Ob die Gastgebertrennung und die Winterregel auch für den
+  Viertelfinalgegner eines betroffenen Teams gelten (Norwegen–England), lässt das Verfahren offen; hier gelten sie nur für das Team selbst.
 - Kein Spielplan: UEFA verteilt ihn erst ab dem 7.12.2026. Die Spiele stehen deshalb ohne Datum und Spieltag da.
 
 ## Quellen

@@ -13,7 +13,7 @@ const SEEDED = Object.fromEntries([...'ABCDEFGHIJKL'].map((g, i) =>
 test('Daten: 54 Teams, eindeutig, alle Verweise bekannt', () => {
   assert.equal(codes.length, 54)
   assert.equal(new Set(codes).size, 54)
-  for (const t of [...D.HOSTS, ...D.NL_WINNERS_ABC, ...D.NL_WINNERS_D, ...D.SEPARATE, ...D.NO_CLASH.flat()]) assert.ok(codes.includes(t), t)
+  for (const t of [...D.HOSTS, ...D.NL_WINNERS_ABC, ...D.NL_WINNERS_D, ...Object.values(D.DRAW).flat(2)]) assert.ok(codes.includes(t), t)
 })
 
 test('Doppelrunde: 4er-Gruppe hat 12 Spiele, 5er-Gruppe 20', () => {
@@ -110,16 +110,21 @@ test('mögliche Platzierungen: Durchzählen der offenen Spiele', () => {
   assert.equal(positionRange(['A', 'B'], { 'A-B': [1, 0], 'B-A': [0, 0] }), null) // abgeschlossen
 })
 
-test('Testauslosung hält Töpfe und Sperren ein', () => {
-  for (let i = 0; i < 50; i++) {
-    const g = drawGroups(codes, D.SEPARATE, D.NO_CLASH)
+test('Testauslosung hält alle Auslosungsregeln ein', () => {
+  const R = D.DRAW, n = (g, list) => g.filter(t => list.includes(t)).length
+  for (let i = 0; i < 200; i++) {
+    const g = drawGroups(codes, R), five = Object.values(g).slice(6)
     assert.deepEqual(Object.values(g).map(x => x.length), [4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5])
     assert.equal(new Set(Object.values(g).flat()).size, 54)
     for (const teams of Object.values(g)) {
       teams.forEach((t, k) => assert.equal(Math.floor(codes.indexOf(t) / 12), k)) // je ein Team pro Topf
-      assert.ok(teams.filter(t => D.SEPARATE.includes(t)).length <= 1)
-      for (const [x, y] of D.NO_CLASH) assert.ok(!(teams.includes(x) && teams.includes(y)))
+      assert.ok(n(teams, R.separate) <= 1)
+      assert.ok(n(teams, R.winter) <= 2)
+      assert.ok(R.noClash.every(p => n(teams, p) < 2))
+      assert.ok(R.travel.filter(p => n(teams, p) === 2).length <= 1)
     }
+    for (const teams of five) assert.ok(n(teams, [...R.nlPlayoff, ...R.qf.flat()]) <= 1) // Nations-League-Teams
+    for (const p of R.qf) assert.ok(five.every(teams => n(teams, p) === 0) || five.filter(teams => n(teams, p)).length === 1) // Sieger passt in A–F
   }
 })
 

@@ -127,16 +127,28 @@ function simulate(groups, results, cfg, n = 2000, rnd = Math.random) {
   return out
 }
 
-// Testauslosung: Topf 1–4 auf A–L, Topf 5 auf G–L; SEPARATE-Teams und verbotene Paarungen nie in einer Gruppe.
-// shortcut: Winterspielorte, Reisedistanzen und Nations-League-Platzhalter des echten Verfahrens bleiben unberücksichtigt;
-// entfällt, sobald die echte Auslosung in data.js steht.
-function drawGroups(order, separate, noClash, rnd = Math.random) {
+// Testauslosung nach dem UEFA-Verfahren: Topf für Topf auf A–L (Topf 5 nur G–L), jeder Topf wird so lange
+// gemischt, bis alle Regeln aus rules (siehe DRAW in data.js) passen. Entfällt, sobald die echte Auslosung in data.js steht.
+function drawGroups(order, rules, rnd = Math.random) {
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a }
-  const bad = g => g.filter(t => separate.includes(t)).length > 1 || noClash.some(([x, y]) => g.includes(x) && g.includes(y))
-  for (;;) {
-    const pots = [0, 12, 24, 36, 48].map(i => shuffle(order.slice(i, i + 12)))
-    const gs = pots[0].map((_, i) => pots.map((p, k) => k < 4 ? p[i] : p[i - 6]).filter(Boolean))
-    if (!gs.some(bad)) return Object.fromEntries(gs.map((g, i) => ['ABCDEFGHIJKL'[i], g]))
+  const n = (g, list) => g.filter(t => list.includes(t)).length
+  const pairs = (g, list) => list.filter(p => n(g, p) === 2).length
+  const busy = [...rules.nlPlayoff, ...rules.qf.flat()] // im März 2027 noch in der Nations League
+  const ok = (g, i) => n(g, rules.separate) < 2 && n(g, rules.winter) < 3 && !pairs(g, rules.noClash) && pairs(g, rules.travel) < 2
+    && (i < 6 || n(g, busy) < 2) // Fünfergruppen G–L: höchstens ein Nations-League-Team
+  restart: for (;;) {
+    const gs = Array.from({ length: 12 }, () => [])
+    for (const start of [0, 12, 24, 36, 48]) {
+      const at = (pot, i) => pot[start < 48 ? i : i - 6]
+      let pot, tries = 0
+      do {
+        if (++tries > 2000) continue restart // Sackgasse durch frühere Töpfe: von vorn
+        pot = shuffle(order.slice(start, start + 12))
+        // aus jeder Viertelfinal-Paarung muss der Sieger in eine Vierergruppe passen: nie beide Teams in G–L
+      } while (rules.qf.some(p => p.every(t => pot.indexOf(t) > 5)) || !gs.every((g, i) => !at(pot, i) || ok([...g, at(pot, i)], i)))
+      gs.forEach((g, i) => at(pot, i) && g.push(at(pot, i)))
+    }
+    return Object.fromEntries(gs.map((g, i) => ['ABCDEFGHIJKL'[i], g]))
   }
 }
 
