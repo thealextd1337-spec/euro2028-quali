@@ -11,12 +11,14 @@ const LABEL = { sieger: 'Q', zweiter: 'Q', gastgeber: 'G', playoff: 'PO', 'playo
 
 const validDraw = g => g && Object.values(g).flat().length === order.length && Object.values(g).flat().every(t => nameOf[t])
 let groups = GROUPS || load('euro2028-draw')
-if (!GROUPS && !validDraw(groups)) save('euro2028-draw', groups = drawGroups(order, SEPARATE, NO_CLASH))
-let user = load('euro2028-results') || {}
+// Tipps gehören zu einer Auslosung: eigener Speicherplatz für die echten Gruppen, Neustart bei neuer Testauslosung
+const TIPS = GROUPS ? 'euro2028-tips' : 'euro2028-results'
+if (!GROUPS && !validDraw(groups)) { save('euro2028-draw', groups = drawGroups(order, SEPARATE, NO_CLASH)); save(TIPS, {}) }
+let user = load(TIPS) || {}
 let sim = null
 
 const team = t => nameOf[t] + (HOSTS.includes(t) ? '<span class="tag">Gastgeber</span>' : '')
-const pct = x => x >= 0.995 ? '100' : x > 0 && x < 0.005 ? '<1' : Math.round(x * 100)
+const pct = x => x > 1 - 1e-9 ? '100' : x >= 0.995 ? '>99' : x > 0 && x < 0.005 ? '<1' : Math.round(x * 100)
 const diff = r => (r.tf - r.ta > 0 ? '+' : '') + (r.tf - r.ta)
 
 function table(tab, q, range) {
@@ -70,14 +72,14 @@ $('#groups').addEventListener('input', e => {
   if (!row) return
   const v = [...row.querySelectorAll('input')].map(i => i.value === '' ? NaN : Number(i.value))
   if (v.every(x => Number.isInteger(x) && x >= 0 && x <= 99)) user[row.dataset.id] = v; else delete user[row.dataset.id]
-  save('euro2028-results', user)
+  save(TIPS, user)
   sim = null // alte Simulation passt nicht mehr zum Stand
   render()
 })
-$('#reset').addEventListener('click', () => { if (confirm('Alle eigenen Ergebnisse löschen?')) { save('euro2028-results', user = {}); sim = null; build() } })
+$('#reset').addEventListener('click', () => { if (confirm('Alle eigenen Ergebnisse löschen?')) { save(TIPS, user = {}); sim = null; build() } })
 $('#redraw').addEventListener('click', () => {
   if (Object.keys(user).length && !confirm('Neue Testauslosung? Eigene Ergebnisse werden gelöscht.')) return
-  save('euro2028-draw', groups = drawGroups(order, SEPARATE, NO_CLASH)); save('euro2028-results', user = {}); sim = null; build()
+  save('euro2028-draw', groups = drawGroups(order, SEPARATE, NO_CLASH)); save(TIPS, user = {}); sim = null; build()
 })
 $('#sim').addEventListener('click', () => { sim = simulate(groups, { ...user, ...RESULTS }, CFG); render() })
 
